@@ -16,6 +16,14 @@ Technically, this is achieved by utilizing the full framework of Radon. Within t
             AWS_SECRET_ACCESS_KEY = credentials('aws-secret')
         }
         stages {
+            stage('Defect prediction') {
+                steps {
+                    // https://radon-h2020.github.io/radon-defect-prediction-api/
+                    sh docker run -p 5000:5000 radon-dp:latest
+                    curl -X POST "http://localhost:5000/api/classification/classify" -H  "accept: */*" -H  "Content-Type: plain/text" -d "- host: all"
+                }
+            }
+
             stage('Deploy resources') {
                 environment {
                     DEPLOY_FILE = '_definitions/radonlegacyblueprints__ImageResize.tosca'
@@ -23,6 +31,17 @@ Technically, this is achieved by utilizing the full framework of Radon. Within t
                 steps {
                     sh 'unzip -o ImageResize.csar'
                     sh 'opera deploy $DEPLOY_FILE'
+                }
+            }
+            stages {
+            stage('Testing') {
+                steps {
+                    // https://continuous-testing-tool.readthedocs.io/en/latest/
+                    sh docker run -t -i --name RadonCTT -p 18080:18080 -v /var/run/docker.sock:/var/run/docker.sock radonconsortium/radon-ctt:latest
+                    curl -X POST "http://localhost:18080/RadonCTT/project" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"name\":\"SockShop\",\"repository_url\":\"https://github.com/radon-h2020/demo-ctt-sockshop.git\"}"
+                    curl -X POST "http://localhost:18080/RadonCTT/deployment" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"testartifact_uuid\":\"87a2d052-93ce-43d2-b765-74b0cef9df92\"}"
+                    curl -X POST "http://localhost:18080/RadonCTT/execution" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"deployment_uuid\":\"5f435990-8a1a-4741-a040-6db2fe552603\"}"
+
                 }
             }
         }
