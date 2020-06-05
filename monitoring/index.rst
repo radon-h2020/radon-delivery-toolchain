@@ -1,5 +1,5 @@
 RADON Monitoring Tool documentation!
-==================================
+====================================
 
 .. toctree::
     :caption: Table of Contents
@@ -7,7 +7,6 @@ RADON Monitoring Tool documentation!
     introduction
     business-value
     installation
-    examples
 ..
    Indices and tables
    ==================
@@ -23,6 +22,7 @@ Contact
 The list of contributors:
 
 - Giorgos Giotis (https://github.com/giopnd/)
+- Antonis Mpantis (https://github.com/Ntonis/)
 
 Acknowledgments
 ###############
